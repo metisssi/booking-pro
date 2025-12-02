@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { PropertiesModule } from './modules/properties/properties.module';
 
 
 @Module({
@@ -12,7 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
       isGlobal: true, // .env доступен везде
     }),
     PrismaModule, // 👈 Добавили!
-    AuthModule
+    AuthModule, PropertiesModule
   ],
   controllers: [AppController],
   providers: [AppService],

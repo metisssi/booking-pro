@@ -7,6 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================
+// USER
+// ============================================
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -14,7 +17,13 @@ model User {
   firstName String
   lastName  String
   phone     String?
-  role      UserRole @default(CUSTOMER)
+  role      UserRole @default(GUEST)
+  avatar    String?
+  
+  // Relationships
+  properties Property[] // HOST создаёт properties
+  bookings   Booking[]  // GUEST создаёт bookings
+  reviews    Review[]   // Отзывы которые оставил пользователь
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -23,6 +32,128 @@ model User {
 }
 
 enum UserRole {
-  CUSTOMER
-  BUSINESS_OWNER
+  GUEST
+  HOST
+  ADMIN
+}
+
+// ============================================
+// PROPERTY (недвижимость для аренды)
+// ============================================
+model Property {
+  id          String       @id @default(uuid())
+  
+  // Owner (HOST)
+  hostId      String
+  host        User         @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  
+  // Basic info
+  title       String
+  description String
+  type        PropertyType
+  
+  // Location
+  address     String
+  city        String
+  country     String
+  latitude    Float?
+  longitude   Float?
+  
+  // Capacity
+  guests      Int          // Максимум гостей
+  bedrooms    Int          // Количество спален
+  beds        Int          // Количество кроватей
+  bathrooms   Int          // Количество ванных
+  
+  // Pricing (в центах: 5000 = 50€)
+  pricePerNight Int
+  
+  // Amenities (удобства)
+  amenities   String[]     // ["WiFi", "Kitchen", "Parking"]
+  
+  // Images
+  images      String[]     // URLs фотографий
+  
+  // Relationships
+  bookings    Booking[]
+  reviews     Review[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("properties")
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  VILLA
+  ROOM
+  STUDIO
+}
+
+// ============================================
+// BOOKING (бронирование)
+// ============================================
+model Booking {
+  id         String        @id @default(uuid())
+  
+  // Guest who books
+  guestId    String
+  guest      User          @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  
+  // Property being booked
+  propertyId String
+  property   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  // Dates
+  checkIn    DateTime      // Дата заезда
+  checkOut   DateTime      // Дата выезда
+  
+  // Guests
+  totalGuests Int          // Количество гостей
+  
+  // Pricing
+  pricePerNight Int        // Цена за ночь (на момент бронирования)
+  totalNights   Int        // Количество ночей
+  totalPrice    Int        // Общая цена
+  
+  // Status
+  status     BookingStatus @default(PENDING)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  PENDING    // Ожидает подтверждения HOST
+  CONFIRMED  // Подтверждено
+  CANCELLED  // Отменено
+  COMPLETED  // Завершено (гость выехал)
+}
+
+// ============================================
+// REVIEW (отзыв)
+// ============================================
+model Review {
+  id         String   @id @default(uuid())
+  
+  // Guest who wrote review
+  guestId    String
+  guest      User     @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  
+  // Property being reviewed
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  // Rating & comment
+  rating     Int      // 1-5 звёзд
+  comment    String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("reviews")
 }

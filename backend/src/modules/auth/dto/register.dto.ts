@@ -44,14 +44,14 @@ export class RegisterDto {
   phone?: string;
 
   @ApiProperty({
-    example: 'CUSTOMER',
+    example: 'GUEST',
     description: 'User role',
-    enum: ['CUSTOMER', 'BUSINESS_OWNER'],
-    default: 'CUSTOMER',
+    enum: ['GUEST', 'HOST', 'ADMIN'],
+    default: 'GUEST',
   })
   @IsOptional()
-  @IsEnum(['CUSTOMER', 'BUSINESS_OWNER'], {
-    message: 'Role must be either CUSTOMER or BUSINESS_OWNER',
+  @IsEnum(['GUEST', 'HOST', 'ADMIN'], {
+    message: 'Role must be either GUEST, HOST or ADMIN',
   })
-  role?: 'CUSTOMER' | 'BUSINESS_OWNER';
+  role?: 'GUEST' | 'HOST' | 'ADMIN';
 }

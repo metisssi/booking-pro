@@ -37,7 +37,7 @@ export class AuthService {
         firstName: dto.firstName,
         lastName: dto.lastName,
         phone: dto.phone,
-        role: dto.role || 'CUSTOMER', // По умолчанию CUSTOMER
+        role: dto.role || 'GUEST', // По умолчанию CUSTOMER
       },
     });
 
