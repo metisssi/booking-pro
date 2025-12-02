@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+
 
 @Injectable()
 export class AuthService {
@@ -56,6 +58,46 @@ export class AuthService {
       accessToken: token,
     };
   }
+
+  // ============================================
+  // LOGIN - НОВОЕ! 👇
+  // ============================================
+  async login(dto: LoginDto) {
+    // 1. Найди пользователя по email
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    // 2. Если пользователь не найден → ошибка
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // 3. Проверь пароль
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // 4. Генерируй JWT токен
+    const token = await this.generateToken(user.id, user.email, user.role);
+
+    // 5. Возвращай пользователя + токен (БЕЗ пароля!)
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+      accessToken: token,
+    };
+  }
+
 
   // ============================================
   // HELPER: Generate JWT Token

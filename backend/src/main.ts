@@ -8,7 +8,7 @@ async function bootstrap() {
 
 
   // Global prefix for all routes
-  app.setGlobalPrefix('api/v1')
+  app.setGlobalPrefix('api')
 
 
   // CORS (so that the frontend can connect)
