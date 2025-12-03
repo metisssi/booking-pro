@@ -5,15 +5,16 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PropertiesModule } from './modules/properties/properties.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // .env доступен везде
+      isGlobal: true, // .env avaible everywhere 
     }),
-    PrismaModule, // 👈 Добавили!
-    AuthModule, PropertiesModule
+    PrismaModule, 
+    AuthModule, PropertiesModule, BookingsModule, BookingsModule
   ],
   controllers: [AppController],
   providers: [AppService],

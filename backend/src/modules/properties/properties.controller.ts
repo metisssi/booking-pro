@@ -30,7 +30,7 @@ export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesService) {}
 
   // ============================================
-  // POST /api/v1/properties (только HOST)
+  // POST /api/properties (только HOST)
   // ============================================
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -174,7 +174,7 @@ export class PropertiesController {
   }
 
   // ============================================
-  // GET /api/v1/properties/:id (публичный доступ)
+  // GET /api//properties/:id (публичный доступ)
   // ============================================
   @Get(':id')
   @ApiOperation({ 
