@@ -2,10 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Global prefix for all routes
   app.setGlobalPrefix('api')
@@ -25,7 +29,7 @@ async function bootstrap() {
 
 
 
- 
+
 
 
   // ============================================
@@ -51,7 +55,7 @@ async function bootstrap() {
   console.log(`
     🚀 Server is running on: http://localhost:${port}
     📚 Swagger docs: http://localhost:${port}/api/docs
-    🔗 API base URL: http://localhost:${port}/api/v1
+    🔗 API base URL: http://localhost:${port}/api
   `);
 }
 bootstrap();
