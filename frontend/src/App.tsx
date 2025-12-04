@@ -1,25 +1,50 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
+import { useAuthStore } from './store/authStore';
+import { Navbar } from './components/Navbar';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { Dashboard } from './pages/Dashboard';
+import { PropertiesList } from './pages/PropertiesList';
+import { PropertyDetail } from './pages/PropertyDetail';
+
 function App() {
+  const loadFromStorage = useAuthStore((state) => state.loadFromStorage);
+
+  // Load user from localStorage on app start
+  useEffect(() => {
+    loadFromStorage();
+  }, [loadFromStorage]);
+
   return (
-    <div className="p-8 space-y-4">
-      <h1 className="text-3xl font-bold">DaisyUI Buttons</h1>
+    <BrowserRouter>
+      <Toaster position="top-right" />
+      <Navbar />
       
-      <button className="btn">Normal</button>
-      <button className="btn btn-primary">Primary</button>
-      <button className="btn btn-secondary">Secondary</button>
-      <button className="btn btn-accent">Accent</button>
-      <button className="btn btn-success">Success</button>
-      <button className="btn btn-error">Error</button>
-      
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title">Card title!</h2>
-          <p>If you see this styled - DaisyUI works! 🔥</p>
-          <div className="card-actions justify-end">
-            <button className="btn btn-primary">Buy Now</button>
-          </div>
-        </div>
-      </div>
-    </div>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Navigate to="/properties" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/properties" element={<PropertiesList />} />
+        <Route path="/properties/:id" element={<PropertyDetail />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/properties" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
