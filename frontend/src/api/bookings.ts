@@ -1,5 +1,5 @@
 import axiosInstance from './axios';
-import { Booking, CreateBookingDto } from '../types';
+import { Booking, CreateBookingDto } from '../types/index';
 
 // ============================================
 // CREATE BOOKING (only for GUEST)
