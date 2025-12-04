@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('jwt')
+        const token = localStorage.getItem('token')
 
         if(token){
             config.headers.Authorization = `Bearer ${token}`
@@ -39,3 +39,5 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error)
     }
 )
+
+export default axiosInstance;

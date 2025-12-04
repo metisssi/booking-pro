@@ -1,5 +1,5 @@
 import axiosInstance from './axios';
-import { Property, CreatePropertyDto } from '../types';
+import { Property, CreatePropertyDto } from '../types/index';
 
 
 // ============================================
@@ -38,8 +38,19 @@ export const getPropertyById = async (id: string): Promise<Property> => {
 // GET MY PROPERTIES (only for HOST)
 // ===========================================
 
+export const getMyProperties = async (): Promise<Property[]> => {
+    const response = await axiosInstance.get<Property[]>('/properties/my');
+    return response.data;
+};
+
+
+// ============================================
+// Create property (only for host) 
+// ===========================================
+
+
 export const createProperty = async (data: CreatePropertyDto): Promise<Property> => {
-    const response = axiosInstance.post<Property>('/properties', data)
+    const response = await axiosInstance.post<Property>('/properties', data)
     return response.data;
 }
 

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User } from '../types/index.js';
+import { User } from '../types/index.ts';
 
 interface AuthState {
   user: User | null;
