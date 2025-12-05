@@ -4,13 +4,14 @@ import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './store/authStore';
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { LoggedRoute } from './components/LoggedRoute';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { PropertiesList } from './pages/PropertiesList';
 import { PropertyDetail } from './pages/PropertyDetail';
-import { CreateProperty } from './pages/CreateProperty'; 
-import { EditProperty } from './pages/EditProperty'; 
+import { CreateProperty } from './pages/CreateProperty';
+import { EditProperty } from './pages/EditProperty';
 import { MyProperties } from './pages/MyProperties';
 import { GuestBookings } from './pages/GuestBookings';
 import { HostBookings } from './pages/HostBookings';
@@ -31,8 +32,22 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Navigate to="/properties" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/login"
+          element={
+            <LoggedRoute>
+              <Login />
+            </LoggedRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <LoggedRoute>
+              <Register />
+            </LoggedRoute>
+          }
+        />
         <Route path="/properties" element={<PropertiesList />} />
         <Route path="/properties/:id" element={<PropertyDetail />} />
 
@@ -46,7 +61,7 @@ function App() {
           }
         />
 
-        
+
         <Route
           path="/my-properties"
           element={
@@ -66,7 +81,7 @@ function App() {
           }
         />
 
-         {/* ✅ ДОБАВЬ ЭТОТ РОУТ */}
+        {/* ✅ ДОБАВЬ ЭТОТ РОУТ */}
         <Route
           path="/my-properties/edit/:id"
           element={
@@ -76,7 +91,7 @@ function App() {
           }
         />
 
-         <Route
+        <Route
           path="/host-bookings"
           element={
             <ProtectedRoute allowedRoles={[UserRole.HOST]}>
@@ -85,12 +100,12 @@ function App() {
           }
         />
 
-         {/* Protected Routes - GUEST ONLY */}
+        {/* Protected Routes - GUEST ONLY */}
         <Route
           path="/my-bookings"
           element={
             <ProtectedRoute allowedRoles={[UserRole.GUEST]}>
-              <GuestBookings /> 
+              <GuestBookings />
             </ProtectedRoute>
           }
         />

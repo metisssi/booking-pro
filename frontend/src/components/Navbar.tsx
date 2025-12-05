@@ -17,9 +17,16 @@ export const Navbar = () => {
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
           <li><Link to="/properties">Properties</Link></li>
+          
+          {/* HOST menu items */}
           {isAuthenticated && user?.role === 'HOST' && (
-            <li><Link to="/my-properties">My Properties</Link></li>
+            <>
+              <li><Link to="/my-properties">My Properties</Link></li>
+              <li><Link to="/host-bookings">Bookings</Link></li> {/* ✅ ДОБАВЬ ЭТУ СТРОКУ */}
+            </>
           )}
+          
+          {/* GUEST menu items */}
           {isAuthenticated && user?.role === 'GUEST' && (
             <li><Link to="/my-bookings">My Bookings</Link></li>
           )}
@@ -39,7 +46,6 @@ export const Navbar = () => {
                 <span>{user?.firstName} {user?.lastName}</span>
                 <span className="text-xs">{user?.email}</span>
               </li>
-              {/* ✅ Dashboard только для HOST */}
               {user?.role === 'HOST' && (
                 <li><Link to="/dashboard">Dashboard</Link></li>
               )}

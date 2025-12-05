@@ -1,6 +1,6 @@
 import { useAuthStore } from '../store/authStore';
 import { Link } from 'react-router-dom';
-import { Home, Calendar, PlusCircle } from 'lucide-react';
+import { Home, Calendar, PlusCircle, ClipboardList } from 'lucide-react';
 
 export const Dashboard = () => {
   const { user } = useAuthStore();
@@ -42,7 +42,7 @@ export const Dashboard = () => {
           </Link>
         )}
 
-        {/* My Properties (HOST) */}
+        {/* HOST cards */}
         {user?.role === 'HOST' && (
           <>
             <Link to="/my-properties" className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
@@ -67,6 +67,20 @@ export const Dashboard = () => {
                 </p>
                 <div className="card-actions mt-4">
                   <button className="btn btn-success">Add New</button>
+                </div>
+              </div>
+            </Link>
+
+        
+            <Link to="/host-bookings" className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+              <div className="card-body items-center text-center">
+                <ClipboardList className="w-16 h-16 text-info mb-4" />
+                <h2 className="card-title">Property Bookings</h2>
+                <p className="text-base-content/70">
+                  View and manage bookings for your properties
+                </p>
+                <div className="card-actions mt-4">
+                  <button className="btn btn-info">View Bookings</button>
                 </div>
               </div>
             </Link>

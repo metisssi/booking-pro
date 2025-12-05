@@ -12,39 +12,46 @@ interface AuthState {
   loadFromStorage: () => void;
 }
 
-export const useAuthStore = create<AuthState>()((set) => ({
-  user: null,
-  token: null,
-  isAuthenticated: false,
+// Load initial state from localStorage before creating store
+const loadInitialState = () => {
+  const userStr = localStorage.getItem('user');
+  const token = localStorage.getItem('token');
 
-  // Save user and token
+  if (userStr && token) {
+    try {
+      const user = JSON.parse(userStr) as User;
+      return { user, token, isAuthenticated: true };
+    } catch (error) {
+      console.error('Failed to parse user from localStorage', error);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    }
+  }
+
+  return { user: null, token: null, isAuthenticated: false };
+};
+
+export const useAuthStore = create<AuthState>()((set) => ({
+  // Initialize store immediately with data from localStorage
+  ...loadInitialState(),
+
+  // Save user and token to localStorage and update state
   setAuth: (user, token) => {
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('token', token);
     set({ user, token, isAuthenticated: true });
   },
 
-  //to clean everything.
+  // Clear everything from localStorage and reset state
   logout: () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     set({ user: null, token: null, isAuthenticated: false });
   },
 
-  // Load from localStorage when the application starts
+  // Manually reload data from localStorage if needed
   loadFromStorage: () => {
-    const userStr = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-
-    if (userStr && token) {
-      try {
-        const user = JSON.parse(userStr) as User;
-        set({ user, token, isAuthenticated: true });
-      } catch (error) {
-        console.error('Failed to parse user from localStorage', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
-    }
+    const state = loadInitialState();
+    set(state);
   },
 }));
