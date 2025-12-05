@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getPropertyById } from '../api/properties';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { getPropertyById, deleteProperty } from '../api/properties';
 import { createBooking } from '../api/bookings';
 import { Property } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { formatPrice, calculateNights } from '../utils/helpers';
-import { MapPin, Users, Bed, Bath, Star, Calendar } from 'lucide-react';
+import { MapPin, Users, Bed, Bath, Star, Calendar, Edit, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const PropertyDetail = () => {
@@ -20,6 +20,10 @@ export const PropertyDetail = () => {
     checkOut: '',
     totalGuests: 1,
   });
+
+  // Check if current user is the owner
+  const isOwner = user && property && user.id === property.hostId;
+  const isGuest = user?.role === 'GUEST';
 
   useEffect(() => {
     if (id) {
@@ -46,7 +50,7 @@ export const PropertyDetail = () => {
       return;
     }
 
-    if (user?.role !== 'GUEST') {
+    if (!isGuest) {
       toast.error('Only guests can book properties');
       return;
     }
@@ -62,6 +66,20 @@ export const PropertyDetail = () => {
       navigate('/my-bookings');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Booking failed');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this property?')) {
+      return;
+    }
+
+    try {
+      await deleteProperty(id!);
+      toast.success('Property deleted successfully!');
+      navigate('/my-properties');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to delete property');
     }
   };
 
@@ -84,6 +102,26 @@ export const PropertyDetail = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Owner Actions */}
+      {isOwner && (
+        <div className="flex gap-4 mb-4">
+          <Link
+            to={`/my-properties/edit/${property.id}`}
+            className="btn btn-warning gap-2"
+          >
+            <Edit className="w-5 h-5" />
+            Edit Property
+          </Link>
+          <button
+            onClick={handleDelete}
+            className="btn btn-error gap-2"
+          >
+            <Trash2 className="w-5 h-5" />
+            Delete Property
+          </button>
+        </div>
+      )}
+
       {/* Images */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <img
@@ -170,84 +208,146 @@ export const PropertyDetail = () => {
           )}
         </div>
 
-        {/* Right: Booking Card */}
-        <div className="lg:col-span-1">
-          <div className="card bg-base-100 shadow-xl sticky top-4">
-            <div className="card-body">
-              <h3 className="text-3xl font-bold text-primary mb-4">
-                {formatPrice(property.pricePerNight)}
-                <span className="text-base font-normal text-base-content/70">/night</span>
-              </h3>
+        {/* Right: Booking Card (ONLY FOR GUESTS) */}
+        {!isOwner && (
+          <div className="lg:col-span-1">
+            <div className="card bg-base-100 shadow-xl sticky top-4">
+              <div className="card-body">
+                <h3 className="text-3xl font-bold text-primary mb-4">
+                  {formatPrice(property.pricePerNight)}
+                  <span className="text-base font-normal text-base-content/70">/night</span>
+                </h3>
 
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    Check-in
-                  </span>
-                </label>
-                <input
-                  type="date"
-                  className="input input-bordered"
-                  value={bookingData.checkIn}
-                  onChange={(e) => setBookingData({ ...bookingData, checkIn: e.target.value })}
-                />
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    Check-out
-                  </span>
-                </label>
-                <input
-                  type="date"
-                  className="input input-bordered"
-                  value={bookingData.checkOut}
-                  onChange={(e) => setBookingData({ ...bookingData, checkOut: e.target.value })}
-                />
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    Guests
-                  </span>
-                </label>
-                <input
-                  type="number"
-                  className="input input-bordered"
-                  min="1"
-                  max={property.guests}
-                  value={bookingData.totalGuests}
-                  onChange={(e) => setBookingData({ ...bookingData, totalGuests: parseInt(e.target.value) })}
-                />
-              </div>
-
-              {nights > 0 && (
-                <>
-                  <div className="divider"></div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>{formatPrice(property.pricePerNight)} x {nights} nights</span>
-                      <span>{formatPrice(property.pricePerNight * nights)}</span>
+                {isAuthenticated && isGuest ? (
+                  <>
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Check-in
+                        </span>
+                      </label>
+                      <input
+                        type="date"
+                        className="input input-bordered"
+                        value={bookingData.checkIn}
+                        onChange={(e) => setBookingData({ ...bookingData, checkIn: e.target.value })}
+                      />
                     </div>
-                    <div className="flex justify-between font-bold text-lg">
-                      <span>Total</span>
-                      <span className="text-primary">{formatPrice(totalPrice)}</span>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          Check-out
+                        </span>
+                      </label>
+                      <input
+                        type="date"
+                        className="input input-bordered"
+                        value={bookingData.checkOut}
+                        onChange={(e) => setBookingData({ ...bookingData, checkOut: e.target.value })}
+                      />
                     </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          Guests
+                        </span>
+                      </label>
+                      <input
+                        type="number"
+                        className="input input-bordered"
+                        min="1"
+                        max={property.guests}
+                        value={bookingData.totalGuests}
+                        onChange={(e) => setBookingData({ ...bookingData, totalGuests: parseInt(e.target.value) })}
+                      />
+                    </div>
+
+                    {nights > 0 && (
+                      <>
+                        <div className="divider"></div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span>{formatPrice(property.pricePerNight)} x {nights} nights</span>
+                            <span>{formatPrice(property.pricePerNight * nights)}</span>
+                          </div>
+                          <div className="flex justify-between font-bold text-lg">
+                            <span>Total</span>
+                            <span className="text-primary">{formatPrice(totalPrice)}</span>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    <button onClick={handleBooking} className="btn btn-primary w-full mt-4">
+                      Book Now
+                    </button>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    {!isAuthenticated ? (
+                      <>
+                        <p className="text-base-content/70 mb-4">
+                          Please login to book this property
+                        </p>
+                        <Link to="/login" className="btn btn-primary w-full">
+                          Login to Book
+                        </Link>
+                      </>
+                    ) : (
+                      <p className="text-base-content/70">
+                        Only guests can book properties. Please register as a guest to make a booking.
+                      </p>
+                    )}
                   </div>
-                </>
-              )}
-
-              <button onClick={handleBooking} className="btn btn-primary w-full mt-4">
-                Book Now
-              </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Owner Info Card (when owner views their own property) */}
+        {isOwner && (
+          <div className="lg:col-span-1">
+            <div className="card bg-base-100 shadow-xl sticky top-4">
+              <div className="card-body">
+                <h3 className="card-title text-2xl mb-4">Your Property Stats</h3>
+                
+                <div className="stats stats-vertical shadow">
+                  <div className="stat">
+                    <div className="stat-title">Total Bookings</div>
+                    <div className="stat-value text-primary">{property.totalBookings || 0}</div>
+                  </div>
+                  
+                  <div className="stat">
+                    <div className="stat-title">Confirmed</div>
+                    <div className="stat-value text-success">{property.confirmedBookings || 0}</div>
+                  </div>
+                  
+                  <div className="stat">
+                    <div className="stat-title">Reviews</div>
+                    <div className="stat-value text-warning">{property.totalReviews || 0}</div>
+                  </div>
+                </div>
+
+                <div className="divider"></div>
+
+                <div className="text-center">
+                  <p className="text-sm text-base-content/70 mb-4">
+                    Price per night
+                  </p>
+                  <p className="text-3xl font-bold text-primary">
+                    {formatPrice(property.pricePerNight)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

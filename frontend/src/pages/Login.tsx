@@ -15,21 +15,27 @@ export const Login = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const response = await login(formData);
-      setAuth(response.user, response.accessToken);
-      toast.success('Welcome back!');
+  try {
+    const response = await login(formData);
+    setAuth(response.user, response.accessToken);
+    toast.success('Welcome back!');
+    
+    // ✅ Редирект в зависимости от роли
+    if (response.user.role === 'HOST') {
       navigate('/dashboard');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Login failed');
-    } finally {
-      setLoading(false);
+    } else {
+      navigate('/my-bookings');
     }
-  };
+  } catch (error: any) {
+    toast.error(error.response?.data?.message || 'Login failed');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200">

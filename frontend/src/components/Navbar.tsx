@@ -39,7 +39,10 @@ export const Navbar = () => {
                 <span>{user?.firstName} {user?.lastName}</span>
                 <span className="text-xs">{user?.email}</span>
               </li>
-              <li><Link to="/dashboard">Dashboard</Link></li>
+              {/* ✅ Dashboard только для HOST */}
+              {user?.role === 'HOST' && (
+                <li><Link to="/dashboard">Dashboard</Link></li>
+              )}
               <li><button onClick={logout}><LogOut className="w-4 h-4" />Logout</button></li>
             </ul>
           </div>
